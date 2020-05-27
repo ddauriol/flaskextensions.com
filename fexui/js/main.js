@@ -1,6 +1,6 @@
 const instance = axios.create({
-  baseURL: `//${window.location.hostname}:8000/`,
-  // baseURL: "http://161.35.57.225:8000/",
+  // baseURL: `//${window.location.hostname}:8000/`,
+  baseURL: "http://161.35.57.225:8000/",
 });
 
 new Vue({
@@ -9,13 +9,19 @@ new Vue({
     result: {},
     term: "",
     shotBy: "stars",
+    hero: true,
   },
+
   async mounted() {
     const resp = await instance.get("extension/");
     this.result = resp.data;
     this.adjustDate();
     this.changeShort();
+    setTimeout(() => {
+      this.hero = true;
+    }, 1000);
   },
+
   filters: {
     truncate: function (text) {
       if (text != null) {
@@ -26,13 +32,30 @@ new Vue({
       return text;
     },
   },
+
+  watch: {
+    term(val) {
+      if (val.length == 0) {
+        setTimeout(() => {
+          this.hero = true;
+        }, 500);
+      }
+    },
+  },
+
   methods: {
     async search() {
       const resp = await instance.get(`extension/?query=${this.term}`);
       this.result = resp.data;
+      if (this.result.items.length > 0 && this.term.length != 0) {
+        this.hero = false;
+      } else {
+        this.hero = true;
+      }
       this.adjustDate();
       this.changeShort();
     },
+
     async paginate(paginate_to) {
       const resp = await instance.get("extension/", {
         params: {
@@ -41,11 +64,11 @@ new Vue({
           query: this.term,
         },
       });
-      console.log(resp.data);
       this.result = resp.data;
       this.adjustDate();
       this.changeShort();
     },
+
     changeShort() {
       this.shotBy = this.$refs.selectShort.value;
       switch (this.shotBy) {
@@ -59,21 +82,25 @@ new Vue({
           this.shortByName();
       }
     },
+
     shortByName() {
       this.result.items = this.result.items.sort((a, b) =>
         a.name.localeCompare(b.name)
       );
     },
+
     shortByStars() {
       this.result.items = this.result.items.sort(function (a, b) {
         return b.stargazers_count - a.stargazers_count;
       });
     },
+
     shortByForks() {
       this.result.items = this.result.items.sort(function (a, b) {
         return b.forks_count - a.forks_count;
       });
     },
+
     adjustDate() {
       Object.entries(this.result.items).forEach((value) => {
         let created_at = new Date(value[1].created_at.replace("T", " "))

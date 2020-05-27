@@ -68,7 +68,7 @@
                 </div>
               </div>
             </div>
-            <div class="columns img-heros">
+            <div v-if="hero" class="columns img-heros">
               <div class="column is-7">
                 <img src="./img/hero.png" alt="Hero Baner" sizes="80%" />
               </div>
@@ -99,8 +99,11 @@
       <section class="section top-status bk-null">
         <div class="container">
           <div class="columns">
-            <div class="column is-expanded has-text-info">
-              <p class="is-size-4">Total Results: {{result.page.total!=0 ? result.page.total : result.items.length}}</p>
+            <div v-if="hero" class="column is-expanded has-text-info">
+              <span   class="is-size-4">Total Results: {{result.page.total!=0 ? result.page.total : result.items.length}}</span >
+            </div>
+            <div v-else class="column is-expanded has-text-info">
+              <strong  class="is-size-4 has-text-light">Total Results: {{result.page.total!=0 ? result.page.total : result.items.length}}</strong>
             </div>
             <div class="control has-icons-left">
               <div class="select">
